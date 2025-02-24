@@ -70,20 +70,6 @@
                     this.x += this.velocity.x;
                     this.y += this.velocity.y;
                 }
-                
-                // Prevent worm from falling offscreen
-                if (this.y + this.radius > canvas.height) {
-                    this.y = canvas.height - this.radius;
-                    this.velocity.y = 0;
-                }
-                if (this.x - this.radius < 0) {
-                    this.x = this.radius;
-                    this.velocity.x = 0;
-                }
-                if (this.x + this.radius > canvas.width) {
-                    this.x = canvas.width - this.radius;
-                    this.velocity.x = 0;
-                }
                 this.draw();
             }
         }
@@ -130,8 +116,8 @@
                 let dy = event.clientY - startY;
                 let distance = Math.min(Math.sqrt(dx * dx + dy * dy), worm.maxDragDistance);
                 let angle = Math.atan2(dy, dx);
-                worm.velocity.x = -Math.cos(angle) * (distance / 5); // Reverse direction
-                worm.velocity.y = -Math.sin(angle) * (distance / 5); // Reverse direction
+                worm.velocity.x = Math.cos(angle) * (distance / 5); // Adjusted for correct direction
+                worm.velocity.y = Math.sin(angle) * (distance / 5); // Adjusted for correct direction
                 worm.isDragging = false;
             }
         });
