@@ -70,6 +70,13 @@
                     this.x += this.velocity.x;
                     this.y += this.velocity.y;
                 }
+                
+                // Prevent worm from falling below the screen
+                if (this.y + this.radius > canvas.height) {
+                    this.y = canvas.height - this.radius;
+                    this.velocity.y = 0;
+                }
+                
                 this.draw();
             }
         }
