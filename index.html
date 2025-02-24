@@ -126,12 +126,12 @@
 
         canvas.addEventListener("mouseup", (event) => {
             if (worm && worm.isDragging) {
-                let dx = startX - event.clientX;
-                let dy = startY - event.clientY;
+                let dx = event.clientX - startX;
+                let dy = event.clientY - startY;
                 let distance = Math.min(Math.sqrt(dx * dx + dy * dy), worm.maxDragDistance);
                 let angle = Math.atan2(dy, dx);
-                worm.velocity.x = Math.cos(angle) * (distance / 5);
-                worm.velocity.y = Math.sin(angle) * (distance / 5);
+                worm.velocity.x = -Math.cos(angle) * (distance / 5); // Reverse direction
+                worm.velocity.y = -Math.sin(angle) * (distance / 5); // Reverse direction
                 worm.isDragging = false;
             }
         });
