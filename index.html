@@ -41,6 +41,20 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
+        class Obstacle {
+            constructor(x, y, width, height) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+            }
+            
+            draw() {
+                ctx.fillStyle = "brown";
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+        }
+
         class Worm {
             constructor(x, y) {
                 this.x = x;
@@ -48,6 +62,7 @@
                 this.radius = 15;
                 this.velocity = { x: 0, y: 0 };
                 this.isDragging = false;
+                this.isStuck = false;
                 this.anchor = null;
                 this.maxDragDistance = 100;
                 this.gravity = 0.5;
@@ -63,7 +78,7 @@
             }
 
             update() {
-                if (!this.isDragging) {
+                if (!this.isDragging && !this.isStuck) {
                     this.velocity.y += this.gravity; // Apply gravity
                     this.velocity.x *= this.friction; // Apply friction
                     this.velocity.y *= this.friction;
@@ -77,17 +92,37 @@
                     this.velocity.y = 0;
                 }
                 
+                // Check if worm is stuck to an obstacle
+                for (let obstacle of obstacles) {
+                    if (
+                        this.x + this.radius > obstacle.x &&
+                        this.x - this.radius < obstacle.x + obstacle.width &&
+                        this.y + this.radius > obstacle.y &&
+                        this.y - this.radius < obstacle.y + obstacle.height
+                    ) {
+                        this.isStuck = true;
+                        this.velocity.x = 0;
+                        this.velocity.y = 0;
+                    }
+                }
+                
                 this.draw();
             }
         }
 
         let worm = null;
+        let obstacles = [];
         let startX, startY;
         let gameStarted = false;
 
         function startGame() {
             document.getElementById("startScreen").style.display = "none";
             worm = new Worm(canvas.width / 2, canvas.height - 50);
+            obstacles = [
+                new Obstacle(200, 300, 100, 20),
+                new Obstacle(400, 500, 150, 20),
+                new Obstacle(600, 200, 100, 20)
+            ];
             gameStarted = true;
             gameLoop();
         }
@@ -98,6 +133,7 @@
             let dy = event.clientY - worm.y;
             if (Math.sqrt(dx * dx + dy * dy) <= worm.radius) {
                 worm.isDragging = true;
+                worm.isStuck = false; // Detach from obstacle
                 worm.anchor = { x: worm.x, y: worm.y };
                 startX = event.clientX;
                 startY = event.clientY;
@@ -131,6 +167,9 @@
 
         function gameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let obstacle of obstacles) {
+                obstacle.draw();
+            }
             if (worm) {
                 worm.update();
             }
