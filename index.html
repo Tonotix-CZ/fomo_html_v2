@@ -50,6 +50,8 @@
                 this.isDragging = false;
                 this.anchor = null;
                 this.maxDragDistance = 100;
+                this.gravity = 0.5;
+                this.friction = 0.98;
             }
 
             draw() {
@@ -62,9 +64,25 @@
 
             update() {
                 if (!this.isDragging) {
-                    this.velocity.y += 0.5; // Gravity
+                    this.velocity.y += this.gravity; // Apply gravity
+                    this.velocity.x *= this.friction; // Apply friction
+                    this.velocity.y *= this.friction;
                     this.x += this.velocity.x;
                     this.y += this.velocity.y;
+                }
+                
+                // Prevent worm from falling offscreen
+                if (this.y + this.radius > canvas.height) {
+                    this.y = canvas.height - this.radius;
+                    this.velocity.y = 0;
+                }
+                if (this.x - this.radius < 0) {
+                    this.x = this.radius;
+                    this.velocity.x = 0;
+                }
+                if (this.x + this.radius > canvas.width) {
+                    this.x = canvas.width - this.radius;
+                    this.velocity.x = 0;
                 }
                 this.draw();
             }
@@ -78,7 +96,7 @@
             document.getElementById("startScreen").style.display = "none";
             worm = new Worm(canvas.width / 2, canvas.height - 50);
             gameStarted = true;
-            requestAnimationFrame(gameLoop);
+            gameLoop();
         }
 
         canvas.addEventListener("mousedown", (event) => {
@@ -90,6 +108,8 @@
                 worm.anchor = { x: worm.x, y: worm.y };
                 startX = event.clientX;
                 startY = event.clientY;
+                worm.velocity.x = 0;
+                worm.velocity.y = 0;
             }
         });
 
